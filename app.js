@@ -21,6 +21,10 @@ const defaultWords = [
   "Библиотека"
 ];
 
+const defaultDecks = [
+  { name: "Базовый", words: [...defaultWords] }
+];
+
 const state = {
   teams: [
     { id: crypto.randomUUID(), name: "Команда А", color: "#6d5efc", score: 0 },
@@ -28,6 +32,8 @@ const state = {
   ],
   roundTime: 60,
   targetScore: 30,
+  pointsCorrect: 1,
+  pointsSkip: 0,
   round: 1,
   teamIndex: 0,
   timer: 60,
@@ -35,7 +41,8 @@ const state = {
   isRunning: false,
   words: [...defaultWords],
   usedWords: [],
-  history: []
+  history: [],
+  decks: [...defaultDecks]
 };
 
 const elements = {
@@ -58,7 +65,13 @@ const elements = {
   addTeam: document.getElementById("addTeam"),
   roundTime: document.getElementById("roundTime"),
   targetScore: document.getElementById("targetScore"),
+  pointsCorrect: document.getElementById("pointsCorrect"),
+  pointsSkip: document.getElementById("pointsSkip"),
   wordInput: document.getElementById("wordInput"),
+  deckName: document.getElementById("deckName"),
+  saveDeck: document.getElementById("saveDeck"),
+  deckSelect: document.getElementById("deckSelect"),
+  deleteDeck: document.getElementById("deleteDeck"),
   shuffleWords: document.getElementById("shuffleWords"),
   saveSettings: document.getElementById("saveSettings"),
   roundHistory: document.getElementById("roundHistory")
@@ -69,11 +82,14 @@ const saveState = () => {
     teams: state.teams,
     roundTime: state.roundTime,
     targetScore: state.targetScore,
+    pointsCorrect: state.pointsCorrect,
+    pointsSkip: state.pointsSkip,
     round: state.round,
     teamIndex: state.teamIndex,
     words: state.words,
     usedWords: state.usedWords,
-    history: state.history
+    history: state.history,
+    decks: state.decks
   }));
 };
 
@@ -85,11 +101,14 @@ const loadState = () => {
     state.teams = data.teams || state.teams;
     state.roundTime = data.roundTime ?? state.roundTime;
     state.targetScore = data.targetScore ?? state.targetScore;
+    state.pointsCorrect = data.pointsCorrect ?? state.pointsCorrect;
+    state.pointsSkip = data.pointsSkip ?? state.pointsSkip;
     state.round = data.round ?? state.round;
     state.teamIndex = data.teamIndex ?? state.teamIndex;
     state.words = data.words?.length ? data.words : [...defaultWords];
     state.usedWords = data.usedWords || [];
     state.history = data.history || [];
+    state.decks = data.decks?.length ? data.decks : [...defaultDecks];
     state.timer = state.roundTime;
   } catch (error) {
     console.error(error);
@@ -166,6 +185,16 @@ const renderHistory = () => {
   });
 };
 
+const renderDecks = () => {
+  elements.deckSelect.innerHTML = "";
+  state.decks.forEach((deck, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = `${deck.name} (${deck.words.length})`;
+    elements.deckSelect.appendChild(option);
+  });
+};
+
 const setControls = (isActive) => {
   elements.skipWord.disabled = !isActive;
   elements.correctWord.disabled = !isActive;
@@ -237,7 +266,7 @@ const nextTurn = () => {
 const handleWordAction = (delta) => {
   const team = state.teams[state.teamIndex];
   if (!team) return;
-  team.score += delta;
+  team.score = Math.max(0, team.score + delta);
   elements.currentWord.textContent = getNextWord();
   updateHero();
   renderTeams();
@@ -252,12 +281,16 @@ const handleWordAction = (delta) => {
 const syncSettings = () => {
   elements.roundTime.value = state.roundTime;
   elements.targetScore.value = state.targetScore;
+  elements.pointsCorrect.value = state.pointsCorrect;
+  elements.pointsSkip.value = state.pointsSkip;
   elements.wordInput.value = state.words.concat(state.usedWords).join("\n");
 };
 
 const saveSettings = () => {
   const roundTime = Number(elements.roundTime.value);
   const targetScore = Number(elements.targetScore.value);
+  const pointsCorrect = Number(elements.pointsCorrect.value);
+  const pointsSkip = Number(elements.pointsSkip.value);
   const words = elements.wordInput.value
     .split("\n")
     .map((item) => item.trim())
@@ -265,6 +298,8 @@ const saveSettings = () => {
 
   state.roundTime = Number.isNaN(roundTime) ? 60 : roundTime;
   state.targetScore = Number.isNaN(targetScore) ? 30 : targetScore;
+  state.pointsCorrect = Number.isNaN(pointsCorrect) ? 1 : pointsCorrect;
+  state.pointsSkip = Number.isNaN(pointsSkip) ? 0 : pointsSkip;
   state.words = words.length ? shuffle(words) : shuffle([...defaultWords]);
   state.usedWords = [];
   resetTimer();
@@ -284,6 +319,45 @@ const resetGame = () => {
   renderTeams();
   renderHistory();
   elements.currentWord.textContent = "Нажми «Начать игру»";
+  saveState();
+};
+
+const saveDeck = () => {
+  const name = elements.deckName.value.trim();
+  if (!name) return;
+  const words = elements.wordInput.value
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (!words.length) return;
+  const existing = state.decks.find((deck) => deck.name === name);
+  if (existing) {
+    existing.words = words;
+  } else {
+    state.decks.push({ name, words });
+  }
+  elements.deckName.value = "";
+  renderDecks();
+  saveState();
+};
+
+const loadDeck = (index) => {
+  const deck = state.decks[index];
+  if (!deck) return;
+  state.words = shuffle(deck.words);
+  state.usedWords = [];
+  elements.wordInput.value = deck.words.join("\n");
+  saveState();
+};
+
+const deleteDeck = () => {
+  const index = Number(elements.deckSelect.value);
+  if (Number.isNaN(index)) return;
+  state.decks.splice(index, 1);
+  if (!state.decks.length) {
+    state.decks = [...defaultDecks];
+  }
+  renderDecks();
   saveState();
 };
 
@@ -330,8 +404,12 @@ const registerEvents = () => {
 
   elements.nextRound.addEventListener("click", nextTurn);
 
-  elements.skipWord.addEventListener("click", () => handleWordAction(0));
-  elements.correctWord.addEventListener("click", () => handleWordAction(1));
+  elements.skipWord.addEventListener("click", () =>
+    handleWordAction(state.pointsSkip)
+  );
+  elements.correctWord.addEventListener("click", () =>
+    handleWordAction(state.pointsCorrect)
+  );
 
   elements.addTeam.addEventListener("click", addTeam);
 
@@ -352,6 +430,12 @@ const registerEvents = () => {
     saveState();
   });
 
+  elements.saveDeck.addEventListener("click", saveDeck);
+  elements.deckSelect.addEventListener("change", (event) => {
+    loadDeck(Number(event.target.value));
+  });
+  elements.deleteDeck.addEventListener("click", deleteDeck);
+
   elements.saveSettings.addEventListener("click", () => {
     saveSettings();
   });
@@ -363,6 +447,7 @@ const init = () => {
   updateTimer();
   renderTeams();
   renderHistory();
+  renderDecks();
   syncSettings();
   setControls(false);
   registerEvents();

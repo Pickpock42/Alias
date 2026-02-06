@@ -94,9 +94,23 @@
                 <input type="number" id="targetScore" min="10" max="200" step="5" />
               </label>
               <label>
+                Очков за правильный ответ
+                <input type="number" id="pointsCorrect" min="1" max="5" step="1" />
+              </label>
+              <label>
+                Штраф за пропуск
+                <input type="number" id="pointsSkip" min="-2" max="0" step="1" />
+              </label>
+              <label>
                 Слова в колоде
                 <textarea id="wordInput" rows="4"></textarea>
               </label>
+            </div>
+            <div class="deck-controls">
+              <input type="text" id="deckName" placeholder="Название словаря" />
+              <button class="ghost" id="saveDeck">Сохранить словарь</button>
+              <select id="deckSelect"></select>
+              <button class="ghost" id="deleteDeck">Удалить</button>
             </div>
             <div class="settings-actions">
               <button class="ghost" id="shuffleWords">Перемешать</button>

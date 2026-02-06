@@ -271,6 +271,22 @@ textarea {
   margin-top: 16px;
 }
 
+.deck-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+select {
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid #dedcf2;
+  font-size: 0.95rem;
+  width: 100%;
+  background: #fff;
+}
+
 .history {
   list-style: none;
   display: grid;
