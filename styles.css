@@ -287,6 +287,35 @@ select {
   background: #fff;
 }
 
+
+.card-soft {
+  margin-top: 16px;
+  background: #f8f7ff;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.section-list {
+  margin: 10px 0 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  max-height: 220px;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.section-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #4e4a73;
+}
+
+.section-item input {
+  width: auto;
+}
 .history {
   list-style: none;
   display: grid;

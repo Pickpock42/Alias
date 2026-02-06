@@ -21,8 +21,18 @@ const defaultWords = [
   "Библиотека"
 ];
 
+const builtInSectionDecks = typeof SECTION_DICTIONARIES !== "undefined"
+  ? SECTION_DICTIONARIES
+  : [];
+
 const defaultDecks = [
-  { name: "Базовый", words: [...defaultWords] }
+  { name: "Базовый", words: [...defaultWords] },
+  ...builtInSectionDecks.map((section) => ({
+    name: `Раздел: ${section.name}`,
+    words: [...section.words],
+    builtIn: true,
+    sectionId: section.id
+  }))
 ];
 
 const state = {
@@ -42,7 +52,8 @@ const state = {
   words: [...defaultWords],
   usedWords: [],
   history: [],
-  decks: [...defaultDecks]
+  decks: [...defaultDecks],
+  selectedSections: []
 };
 
 const elements = {
@@ -72,6 +83,8 @@ const elements = {
   saveDeck: document.getElementById("saveDeck"),
   deckSelect: document.getElementById("deckSelect"),
   deleteDeck: document.getElementById("deleteDeck"),
+  sectionList: document.getElementById("sectionList"),
+  mixSections: document.getElementById("mixSections"),
   shuffleWords: document.getElementById("shuffleWords"),
   saveSettings: document.getElementById("saveSettings"),
   roundHistory: document.getElementById("roundHistory")
@@ -89,7 +102,8 @@ const saveState = () => {
     words: state.words,
     usedWords: state.usedWords,
     history: state.history,
-    decks: state.decks
+    decks: state.decks,
+    selectedSections: state.selectedSections
   }));
 };
 
@@ -109,6 +123,7 @@ const loadState = () => {
     state.usedWords = data.usedWords || [];
     state.history = data.history || [];
     state.decks = data.decks?.length ? data.decks : [...defaultDecks];
+    state.selectedSections = data.selectedSections || [];
     state.timer = state.roundTime;
   } catch (error) {
     console.error(error);
@@ -192,6 +207,24 @@ const renderDecks = () => {
     option.value = String(index);
     option.textContent = `${deck.name} (${deck.words.length})`;
     elements.deckSelect.appendChild(option);
+  });
+};
+
+const renderSections = () => {
+  if (!elements.sectionList) return;
+  elements.sectionList.innerHTML = "";
+  builtInSectionDecks.forEach((section) => {
+    const id = `section-${section.id}`;
+    const wrapper = document.createElement("label");
+    wrapper.className = "section-item";
+    wrapper.innerHTML = `
+      <input type="checkbox" value="${section.id}" ${state.selectedSections.includes(section.id) ? "checked" : ""}/>
+      <span>${section.name} (1000)</span>
+    `;
+    const input = wrapper.querySelector("input");
+    input.id = id;
+    wrapper.htmlFor = id;
+    elements.sectionList.appendChild(wrapper);
   });
 };
 
@@ -330,7 +363,7 @@ const saveDeck = () => {
     .map((item) => item.trim())
     .filter(Boolean);
   if (!words.length) return;
-  const existing = state.decks.find((deck) => deck.name === name);
+  const existing = state.decks.find((deck) => deck.name === name && !deck.builtIn);
   if (existing) {
     existing.words = words;
   } else {
@@ -353,6 +386,7 @@ const loadDeck = (index) => {
 const deleteDeck = () => {
   const index = Number(elements.deckSelect.value);
   if (Number.isNaN(index)) return;
+  if (state.decks[index]?.builtIn) return;
   state.decks.splice(index, 1);
   if (!state.decks.length) {
     state.decks = [...defaultDecks];
@@ -436,6 +470,29 @@ const registerEvents = () => {
   });
   elements.deleteDeck.addEventListener("click", deleteDeck);
 
+  elements.sectionList.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    if (target.checked) {
+      state.selectedSections = [...new Set([...state.selectedSections, target.value])];
+    } else {
+      state.selectedSections = state.selectedSections.filter((item) => item !== target.value);
+    }
+    saveState();
+  });
+
+  elements.mixSections.addEventListener("click", () => {
+    const selected = builtInSectionDecks.filter((section) =>
+      state.selectedSections.includes(section.id)
+    );
+    if (!selected.length) return;
+    const words = selected.flatMap((section) => section.words);
+    state.words = shuffle(words);
+    state.usedWords = [];
+    elements.wordInput.value = words.join("\n");
+    saveState();
+  });
+
   elements.saveSettings.addEventListener("click", () => {
     saveSettings();
   });
@@ -448,6 +505,7 @@ const init = () => {
   renderTeams();
   renderHistory();
   renderDecks();
+  renderSections();
   syncSettings();
   setControls(false);
   registerEvents();
