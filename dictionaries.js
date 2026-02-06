@@ -1,49 +1,30 @@
 const SECTION_THEMES = [
-  { id: "travel", name: "Путешествия", noun: "маршрут" },
-  { id: "food", name: "Еда", noun: "рецепт" },
-  { id: "science", name: "Наука", noun: "эксперимент" },
-  { id: "sports", name: "Спорт", noun: "тренировка" },
-  { id: "nature", name: "Природа", noun: "ландшафт" },
-  { id: "history", name: "История", noun: "эпоха" },
-  { id: "tech", name: "Технологии", noun: "алгоритм" },
-  { id: "movies", name: "Кино", noun: "сцена" },
-  { id: "music", name: "Музыка", noun: "мелодия" },
-  { id: "books", name: "Книги", noun: "сюжет" },
-  { id: "city", name: "Город", noun: "квартал" },
-  { id: "business", name: "Бизнес", noun: "стратегия" },
-  { id: "education", name: "Образование", noun: "урок" },
-  { id: "health", name: "Здоровье", noun: "привычка" },
-  { id: "art", name: "Искусство", noun: "палитра" },
-  { id: "home", name: "Дом", noun: "интерьер" },
-  { id: "games", name: "Игры", noun: "миссия" },
-  { id: "internet", name: "Интернет", noun: "пост" },
-  { id: "fashion", name: "Мода", noun: "образ" },
-  { id: "work", name: "Профессии", noun: "проект" }
+  { id: "travel", name: "Путешествия", prefix: "Тр" },
+  { id: "food", name: "Еда", prefix: "Ед" },
+  { id: "science", name: "Наука", prefix: "На" },
+  { id: "sports", name: "Спорт", prefix: "Сп" },
+  { id: "nature", name: "Природа", prefix: "Пр" },
+  { id: "history", name: "История", prefix: "Ис" },
+  { id: "tech", name: "Технологии", prefix: "Те" },
+  { id: "movies", name: "Кино", prefix: "Ки" },
+  { id: "music", name: "Музыка", prefix: "Му" },
+  { id: "books", name: "Книги", prefix: "Кн" },
+  { id: "city", name: "Город", prefix: "Го" },
+  { id: "business", name: "Бизнес", prefix: "Би" },
+  { id: "education", name: "Образование", prefix: "Об" },
+  { id: "health", name: "Здоровье", prefix: "Зд" },
+  { id: "art", name: "Искусство", prefix: "ИсК" },
+  { id: "home", name: "Дом", prefix: "До" },
+  { id: "games", name: "Игры", prefix: "Иг" },
+  { id: "internet", name: "Интернет", prefix: "Ин" },
+  { id: "fashion", name: "Мода", prefix: "Мо" },
+  { id: "work", name: "Профессии", prefix: "Пф" }
 ];
 
-const ADJECTIVES = [
-  "быстрый", "гибкий", "смелый", "тихий", "яркий", "точный", "умный", "тёплый", "северный", "южный",
-  "дальний", "редкий", "живой", "лёгкий", "сложный", "новый", "старый", "мягкий", "громкий", "модный",
-  "честный", "добрый", "строгий", "крепкий", "резкий", "глубокий", "дружный", "сильный", "ловкий", "свежий"
-];
-
-const ACTIONS = [
-  "поиск", "выбор", "сбор", "анализ", "обмен", "стартап", "прорыв", "разбор", "запуск", "финал",
-  "прогноз", "контроль", "подход", "проект", "формат", "сигнал", "баланс", "тренд", "фокус", "ракурс"
-];
-
-const OBJECTS = [
-  "команда", "идея", "система", "задача", "карта", "сервис", "шаблон", "ключ", "план", "сезон",
-  "поток", "пункт", "метод", "файл", "маркер", "модель", "профиль", "курс", "список", "режим"
-];
-
-const makeSectionWords = (sectionName, themeNoun) => {
+const makeSectionWords = (prefix) => {
   const words = [];
-  for (let i = 0; i < 1000; i += 1) {
-    const adjective = ADJECTIVES[i % ADJECTIVES.length];
-    const action = ACTIONS[Math.floor(i / ADJECTIVES.length) % ACTIONS.length];
-    const object = OBJECTS[Math.floor(i / (ADJECTIVES.length * ACTIONS.length)) % OBJECTS.length];
-    words.push(`${sectionName}: ${adjective} ${themeNoun} ${action} ${object} ${i + 1}`);
+  for (let i = 1; i <= 1000; i += 1) {
+    words.push(`${prefix}${String(i).padStart(4, "0")}`);
   }
   return words;
 };
@@ -51,5 +32,5 @@ const makeSectionWords = (sectionName, themeNoun) => {
 const SECTION_DICTIONARIES = SECTION_THEMES.map((section) => ({
   id: section.id,
   name: section.name,
-  words: makeSectionWords(section.name, section.noun)
+  words: makeSectionWords(section.prefix)
 }));
