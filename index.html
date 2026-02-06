@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alias — игра слов</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Alias — игра слов</p>
+          <h1>Объясняй слова, зарабатывай очки</h1>
+          <p class="lead">
+            Быстрые раунды, адаптивный дизайн и полный контроль над правилами — играй
+            с друзьями на телефоне или компьютере.
+          </p>
+          <div class="hero-actions">
+            <button class="primary" id="startGame">Начать игру</button>
+            <button class="ghost" id="resetGame">Сбросить</button>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-stat">
+            <span>Раунд</span>
+            <strong id="roundDisplay">1</strong>
+          </div>
+          <div class="hero-stat">
+            <span>Команда</span>
+            <strong id="teamDisplay">—</strong>
+          </div>
+          <div class="hero-stat">
+            <span>Время</span>
+            <strong id="timerDisplay">60</strong>
+          </div>
+          <div class="hero-stat">
+            <span>Счет</span>
+            <strong id="scoreDisplay">0 : 0</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="card game">
+          <div class="game-header">
+            <div>
+              <h2>Раунд</h2>
+              <p class="muted">Объясняй слово без однокоренных и частей слова.</p>
+            </div>
+            <div class="timer" id="timerRing">
+              <span id="timerValue">60</span>
+              <small>сек</small>
+            </div>
+          </div>
+
+          <div class="word-card" id="wordCard">
+            <p class="label">Текущее слово</p>
+            <h3 id="currentWord">Нажми «Начать игру»</h3>
+          </div>
+
+          <div class="game-controls">
+            <button class="ghost" id="skipWord" disabled>Пропустить</button>
+            <button class="primary" id="correctWord" disabled>Отгадали</button>
+          </div>
+
+          <div class="game-footer">
+            <button class="ghost" id="pauseRound" disabled>Пауза</button>
+            <button class="ghost" id="nextRound" disabled>Следующий ход</button>
+          </div>
+        </section>
+
+        <section class="stack">
+          <div class="card">
+            <h2>Команды</h2>
+            <p class="muted">Добавляй команды, задавай цвета и следи за счетом.</p>
+            <div class="teams" id="teams"></div>
+            <div class="team-controls">
+              <input type="text" id="teamName" placeholder="Название команды" />
+              <input type="color" id="teamColor" value="#6d5efc" />
+              <button class="ghost" id="addTeam">Добавить</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Настройки</h2>
+            <div class="settings">
+              <label>
+                Время раунда (сек)
+                <input type="number" id="roundTime" min="30" max="180" step="5" />
+              </label>
+              <label>
+                Очки для победы
+                <input type="number" id="targetScore" min="10" max="200" step="5" />
+              </label>
+              <label>
+                Очков за правильный ответ
+                <input type="number" id="pointsCorrect" min="1" max="5" step="1" />
+              </label>
+              <label>
+                Штраф за пропуск
+                <input type="number" id="pointsSkip" min="-2" max="0" step="1" />
+              </label>
+              <label>
+                Слова в колоде
+                <textarea id="wordInput" rows="4"></textarea>
+              </label>
+            </div>
+            <div class="deck-controls">
+              <input type="text" id="deckName" placeholder="Название словаря" />
+              <button class="ghost" id="saveDeck">Сохранить словарь</button>
+              <select id="deckSelect"></select>
+              <button class="ghost" id="deleteDeck">Удалить</button>
+            </div>
+            <div class="section-mixer card-soft">
+              <p class="muted">Готовые разделы (20 × 1000 слов). Выбери разделы и смешай.</p>
+              <div id="sectionList" class="section-list"></div>
+              <button class="ghost" id="mixSections">Смешать выбранные разделы</button>
+            </div>
+            <div class="settings-actions">
+              <button class="ghost" id="shuffleWords">Перемешать</button>
+              <button class="primary" id="saveSettings">Сохранить</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>История раунда</h2>
+            <ul class="history" id="roundHistory"></ul>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <p>
+        Alias — настольная игра. Этот интерфейс помогает вести счёт и подбирать
+        слова.
+      </p>
+    </footer>
+
+    <script src="dictionaries.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
